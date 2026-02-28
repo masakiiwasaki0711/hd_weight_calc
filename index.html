@@ -2,54 +2,188 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>体重計算ツール</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>追加透析を検討する目安体重の計算ツール</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; padding: 16px; }
-    .card { max-width: 520px; padding: 16px; border: 1px solid #ddd; border-radius: 12px; }
-    label { display: block; margin-bottom: 8px; }
-    input { font-size: 16px; padding: 8px; width: 160px; }
-    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .result { margin-top: 12px; font-size: 18px; font-weight: 700; }
-    .note { margin-top: 10px; font-size: 12px; color: #666; }
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;
+      background:#f6f7fb;
+      color:#111827;
+    }
+    .wrap{max-width:760px;margin:0 auto;padding:18px;}
+    .header{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:16px;
+    }
+    h1{margin:0;font-size:20px;font-weight:800;}
+    .sub{margin-top:8px;font-size:13px;color:#6b7280;}
+    .card{
+      margin-top:14px;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:16px;
+    }
+    label{font-size:13px;font-weight:600;}
+    input{
+      width:100%;
+      font-size:22px;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid #d1d5db;
+      margin-top:6px;
+    }
+    input:focus{
+      border-color:#111827;
+      outline:none;
+      box-shadow:0 0 0 3px rgba(17,24,39,0.1);
+    }
+    .unit{margin-top:6px;font-size:13px;color:#6b7280;}
+    .btnRow{margin-top:10px;}
+    button{
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid #111827;
+      background:#fff;
+      cursor:pointer;
+    }
+    .resultBox{
+      margin-top:16px;
+      padding:14px;
+      border-radius:14px;
+      border:1px solid #e5e7eb;
+      background:#f9fafb;
+    }
+    .resultLabel{font-size:13px;font-weight:700;}
+    .resultValue{
+      font-size:28px;
+      font-weight:900;
+      margin-top:4px;
+    }
+    details{
+      margin-top:12px;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:10px;
+      background:#fff;
+    }
+    summary{font-weight:800;cursor:pointer;}
+    .row{
+      display:flex;
+      justify-content:space-between;
+      padding:6px 0;
+      font-size:13px;
+      border-bottom:1px dashed #e5e7eb;
+    }
+    .row:last-child{border-bottom:0;font-weight:900;}
+    .note{
+      margin-top:10px;
+      font-size:12px;
+      color:#6b7280;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2 style="margin:0 0 12px;">体重計算ツール</h2>
+  <div class="wrap">
 
-    <div class="row">
-      <label for="weight">体重 (kg)</label>
-      <input type="number" id="weight" step="0.1" min="0" placeholder="例: 50" />
+    <div class="header">
+      <h1>追加透析を検討する目安体重</h1>
+      <div class="sub">
+        体重（kg）のみ入力してください。<br>
+        ※氏名・IDなどの個人情報は入力しない運用としてください。
+      </div>
     </div>
 
-    <div class="result">
-      計算結果: <span id="output">0.0000</span>
+    <div class="card">
+      <label>DW (kg)</label>
+      <input type="number" id="weight" step="0.1" min="0" placeholder="例：50" />
+      <div class="unit">小数入力可</div>
+
+      <div class="btnRow">
+        <button id="clearBtn">クリア</button>
+      </div>
+
+      <div class="resultBox">
+        <div class="resultLabel">計算結果</div>
+        <div class="resultValue" id="output">0.0000</div>
+      </div>
+
+      <details>
+        <summary>計算根拠（内訳）を表示</summary>
+        <div id="breakdown"></div>
+      </details>
+
+      <div class="note">
+        係数：0–40kg×0.025、40–60kg×0.02、60–80kg×0.015、80kg超×0.01
+      </div>
     </div>
 
-    <div class="note">
-      ※個人情報（氏名・ID等）は入力しない運用にしてください。
-    </div>
   </div>
 
   <script>
-    function progressiveCalc(x) {
-      let total = 0;
-      total += Math.min(x, 40) * 0.025;
-      if (x > 40) total += Math.min(x - 40, 20) * 0.02;
-      if (x > 60) total += Math.min(x - 60, 20) * 0.015;
-      if (x > 80) total += (x - 80) * 0.01;
-      return total;
+    function calcBreakdown(w){
+      const x = (!isFinite(w) || w < 0) ? 0 : w;
+
+      const w1 = Math.min(x,40);
+      const w2 = Math.min(Math.max(x-40,0),20);
+      const w3 = Math.min(Math.max(x-60,0),20);
+      const w4 = Math.max(x-80,0);
+
+      const r1 = w1*0.025;
+      const r2 = w2*0.02;
+      const r3 = w3*0.015;
+      const r4 = w4*0.01;
+
+      return {
+        total:r1+r2+r3+r4,
+        rows:[
+          ["0–40kg",w1,0.025,r1],
+          ["40–60kg",w2,0.02,r2],
+          ["60–80kg",w3,0.015,r3],
+          ["80kg超",w4,0.01,r4]
+        ]
+      };
     }
 
-    const weightEl = document.getElementById("weight");
-    const outEl = document.getElementById("output");
+    const weightEl=document.getElementById("weight");
+    const output=document.getElementById("output");
+    const breakdown=document.getElementById("breakdown");
 
-    weightEl.addEventListener("input", () => {
-      const w = parseFloat(weightEl.value);
-      if (!isFinite(w) || w < 0) { outEl.textContent = "0.0000"; return; }
-      outEl.textContent = progressiveCalc(w).toFixed(4);
+    function render(){
+      const w=parseFloat(weightEl.value);
+      const b=calcBreakdown(w);
+
+      output.textContent=b.total.toFixed(4);
+
+      breakdown.innerHTML="";
+      b.rows.forEach(r=>{
+        breakdown.innerHTML+=`
+          <div class="row">
+            <div>${r[0]}</div>
+            <div>${r[1].toFixed(1)} × ${r[2]} = ${r[3].toFixed(4)}</div>
+          </div>
+        `;
+      });
+      breakdown.innerHTML+=`
+        <div class="row">
+          <div>合計</div>
+          <div>${b.total.toFixed(4)}</div>
+        </div>
+      `;
+    }
+
+    weightEl.addEventListener("input",render);
+
+    document.getElementById("clearBtn").addEventListener("click",()=>{
+      weightEl.value="";
+      render();
+      weightEl.focus();
     });
+
+    render();
   </script>
 </body>
 </html>

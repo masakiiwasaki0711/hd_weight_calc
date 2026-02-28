@@ -29,7 +29,7 @@
     }
     label{font-size:13px;font-weight:600;}
     input{
-      width:100%;
+      width:50%;
       font-size:22px;
       padding:12px;
       border-radius:12px;
@@ -133,17 +133,17 @@
       const w4 = Math.max(x-80,0);
 
       const r1 = w1*0.025;
-      const r2 = w2*0.02;
-      const r3 = w3*0.015;
-      const r4 = w4*0.01;
+      const r2 = w2*0.022;
+      const r3 = w3*0.019;
+      const r4 = w4*0.016;
 
       return {
         total:r1+r2+r3+r4,
         rows:[
           ["0–40kg",w1,0.025,r1],
-          ["40–60kg",w2,0.02,r2],
-          ["60–80kg",w3,0.015,r3],
-          ["80kg超",w4,0.01,r4]
+          ["40–60kg",w2,0.022,r2],
+          ["60–80kg",w3,0.019,r3],
+          ["80kg超",w4,0.016,r4]
         ]
       };
     }

@@ -35,10 +35,10 @@
   <script>
     function progressiveCalc(x) {
       let total = 0;
-      total += Math.min(x, 40) * 0.02;
-      if (x > 40) total += Math.min(x - 40, 20) * 0.016;
-      if (x > 60) total += Math.min(x - 60, 20) * 0.012;
-      if (x > 80) total += (x - 80) * 0.008;
+      total += Math.min(x, 40) * 0.025;
+      if (x > 40) total += Math.min(x - 40, 20) * 0.02;
+      if (x > 60) total += Math.min(x - 60, 20) * 0.015;
+      if (x > 80) total += (x - 80) * 0.01;
       return total;
     }
 

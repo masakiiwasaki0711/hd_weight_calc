@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>体重計算ツール</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; padding: 16px; }
+    .card { max-width: 520px; padding: 16px; border: 1px solid #ddd; border-radius: 12px; }
+    label { display: block; margin-bottom: 8px; }
+    input { font-size: 16px; padding: 8px; width: 160px; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .result { margin-top: 12px; font-size: 18px; font-weight: 700; }
+    .note { margin-top: 10px; font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 style="margin:0 0 12px;">体重計算ツール</h2>
+
+    <div class="row">
+      <label for="weight">体重 (kg)</label>
+      <input type="number" id="weight" step="0.1" min="0" placeholder="例: 50" />
+    </div>
+
+    <div class="result">
+      計算結果: <span id="output">0.0000</span>
+    </div>
+
+    <div class="note">
+      ※個人情報（氏名・ID等）は入力しない運用にしてください。
+    </div>
+  </div>
+
+  <script>
+    function progressiveCalc(x) {
+      let total = 0;
+      total += Math.min(x, 40) * 0.02;
+      if (x > 40) total += Math.min(x - 40, 20) * 0.016;
+      if (x > 60) total += Math.min(x - 60, 20) * 0.012;
+      if (x > 80) total += (x - 80) * 0.008;
+      return total;
+    }
+
+    const weightEl = document.getElementById("weight");
+    const outEl = document.getElementById("output");
+
+    weightEl.addEventListener("input", () => {
+      const w = parseFloat(weightEl.value);
+      if (!isFinite(w) || w < 0) { outEl.textContent = "0.0000"; return; }
+      outEl.textContent = progressiveCalc(w).toFixed(4);
+    });
+  </script>
+</body>
+</html>
